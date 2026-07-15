@@ -108,4 +108,4 @@ soc-automation-toolkit/
 ## Author
 
 Manish - B.Tech Cybersecurity, Lloyd Institute of Engineering & Technology
-[GitHub](https://github.com/M-Kay7634/Soc-Automation-Toolkit) | [LinkedIn](www.linkedin.com/in/mmanish7634)
+[GitHub](https://github.com/M-Kay7634/Soc-Automation-Toolkit) | [LinkedIn](https://www.linkedin.com/in/mmanish7634/)
