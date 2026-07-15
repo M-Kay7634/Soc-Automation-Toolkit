@@ -9,6 +9,7 @@ SOC analysts spend a large portion of their day manually checking IPs, domains, 
 **Current modules:**
 1. **IOC Triage Tool** - takes any indicator of compromise (IOC) and returns a clean verdict - MALICIOUS, SUSPICIOUS, or CLEAN - by cross-referencing two independent threat intelligence sources.
 2. **Log Parser + Enricher** - parses SSH auth logs, web server access logs, and Windows Security Event Logs to detect brute-force attacks, SQL injection/path traversal attempts, and full attack chains (brute-force → compromise → persistence → privilege escalation), then automatically enriches attacking IPs with the same threat intel clients from Module 1.
+3. **Phishing Email Analyzer** - parses .eml files, reads SPF/DKIM/DMARC authentication results, detects social-engineering language and typosquatted sender domains, and enriches extracted URLs/domains using the same VirusTotal client from Module 1.
 
 ## Features
 
@@ -72,6 +73,12 @@ python -m log_enricher.web_pipeline --logfile log_enricher/sample_logs/access.lo
 python -m log_enricher.windows_pipeline --logfile log_enricher/sample_logs/windows_events.csv
 ```
 
+### Phishing Email Analysis
+
+```bash
+python -m phishing_analyzer.phishing_pipeline --eml phishing_analyzer/sample_emails/phishing_sample.eml
+```
+
 ### Example Output
 
 ![alt text](image.png)
@@ -117,6 +124,11 @@ soc-automation-toolkit/
 │   ├── windows_pipeline.py       # Full Windows log analysis pipeline CLI
 │   ├── enrich.py                 # Shared enrichment layer (reuses ioc_triage clients)
 │   └── sample_logs/              # Sample log files for testing/demo
+├── phishing_analyzer/
+│   ├── email_parser.py           # .eml parser (headers, auth results, URLs)
+│   ├── risk_scorer.py            # Multi-signal phishing risk scoring
+│   ├── phishing_pipeline.py      # Full phishing analysis pipeline CLI
+│   └── sample_emails/            # Sample phishing/legit .eml files
 ├── shared/
 │   └── config.py                 # Centralized API key loading
 ├── .env.example                  # Template for API keys (never commit real .env)
@@ -135,9 +147,9 @@ soc-automation-toolkit/
 - [x] SSH auth log brute-force detection
 - [x] Web server log SQLi/path traversal/scanner detection
 - [x] Windows Event Log attack chain detection (brute-force → compromise → persistence → privilege escalation)
-- [ ] Phishing Email Analyzer module - SPF/DKIM/DMARC validation, header forensics
+- [x] Phishing Email Analyzer (SPF/DKIM/DMARC, urgency detection, typosquatting heuristic, URL enrichment)
 - [ ] Batch IOC processing (CSV input/output)
-- [ ] Simple web dashboard (Streamlit)
+- [ ] Simple web dashboard (Streamlit) tying all three modules together
 
 ## Author
 
