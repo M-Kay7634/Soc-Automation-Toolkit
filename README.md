@@ -60,6 +60,12 @@ python main.py --ioc 275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf65
 
 ### Example Output
 
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+![alt text](image-2.png)
+
 ```
 ==================================================
   IOC TRIAGE REPORT
