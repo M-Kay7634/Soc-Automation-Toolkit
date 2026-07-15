@@ -70,6 +70,11 @@ def main():
     args = parser.parse_args()
 
     indicator = args.ioc.strip()
+
+    if not indicator:
+        print("Error: --ioc cannot be empty.")
+        sys.exit(1)
+
     ioc_type = detect_ioc_type(indicator)
 
     if ioc_type == "unknown":
@@ -102,4 +107,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        # Lets the user Ctrl+C out cleanly instead of seeing a traceback
+        print("\nCancelled by user.")
+        sys.exit(130)
+    except Exception as e:
+        # Last-resort safety net - a real tool should never crash with
+        # a raw Python traceback in front of a user. Log it cleanly instead.
+        print(f"\nUnexpected error: {e}")
+        sys.exit(1)
