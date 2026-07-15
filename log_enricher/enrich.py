@@ -16,17 +16,19 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from ioc_triage.vt_client import query_ip
 from ioc_triage.abuseipdb_client import query_ip_abuse
 from ioc_triage.verdict import score_combined_verdict
+from database.db import save_log_analysis
 
 
-def enrich_ip_list(ip_list: list) -> list:
+def enrich_ip_list(ip_list: list, log_type: str = "unknown", source_file: str = "unknown") -> list:
     """
     Given a list of IPs (e.g. from find_brute_force_ips), queries
     threat intel for each one and returns enriched results with
-    a final verdict attached.
+    a final verdict attached. Also persists each result to the
+    database so it shows up in historical/dashboard views.
 
-    This ties log-based detection ("this IP attacked us") together
-    with reputation data ("this IP is known-bad elsewhere too") -
-    exactly what a SOC analyst does manually during investigation.
+    log_type and source_file are passed in by the calling pipeline
+    (ssh/web/windows) purely for record-keeping context - they
+    don't affect the enrichment logic itself.
     """
     enriched_results = []
 
@@ -37,6 +39,15 @@ def enrich_ip_list(ip_list: list) -> list:
         combined = score_combined_verdict(vt_result, abuse_result)
         combined["ip"] = ip
         enriched_results.append(combined)
+
+        save_log_analysis(
+            log_type=log_type,
+            source_file=source_file,
+            attacker_ip=ip,
+            verdict=combined["verdict"],
+            severity="",  # populated by callers that track severity (e.g. web logs)
+            details=combined["reason"],
+        )
 
     return enriched_results
 

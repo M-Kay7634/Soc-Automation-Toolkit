@@ -21,6 +21,7 @@ from log_enricher.brute_force_analyzer import (
     find_compromised_accounts,
 )
 from log_enricher.enrich import enrich_ip_list, print_enrichment_report
+from database.db import init_db
 
 
 def main():
@@ -29,6 +30,8 @@ def main():
     )
     parser.add_argument("--logfile", required=True, help="Path to the auth.log file to analyze")
     args = parser.parse_args()
+
+    init_db()
 
     print(f"Parsing {args.logfile} ...")
     events = parse_log_file(args.logfile)
@@ -60,7 +63,7 @@ def main():
     if not brute_force_df.empty:
         print("=== Enriching Flagged IPs with Threat Intel ===")
         flagged_ips = brute_force_df["ip"].tolist()
-        enriched = enrich_ip_list(flagged_ips)
+        enriched = enrich_ip_list(flagged_ips, log_type="ssh", source_file=args.logfile)
         print_enrichment_report(enriched)
 
 

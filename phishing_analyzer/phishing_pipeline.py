@@ -20,6 +20,7 @@ from phishing_analyzer.email_parser import parse_eml
 from phishing_analyzer.risk_scorer import score_email
 
 from ioc_triage.vt_client import query_domain, query_url
+from database.db import init_db, save_phishing_scan
 
 
 def enrich_email_indicators(parsed_email: dict) -> dict:
@@ -84,6 +85,8 @@ def main():
     parser.add_argument("--eml", required=True, help="Path to the .eml file to analyze")
     args = parser.parse_args()
 
+    init_db()
+
     print(f"Parsing {args.eml} ...")
     parsed_email = parse_eml(args.eml)
 
@@ -94,6 +97,14 @@ def main():
     enrichment = enrich_email_indicators(parsed_email)
 
     print_report(parsed_email, risk_result, enrichment)
+
+    save_phishing_scan(
+        sender_email=parsed_email["from_email"],
+        subject=parsed_email["subject"],
+        verdict=risk_result["verdict"],
+        risk_score=risk_result["risk_score"],
+        reasons="; ".join(risk_result["reasons"]),
+    )
 
 
 if __name__ == "__main__":

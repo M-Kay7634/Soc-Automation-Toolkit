@@ -19,6 +19,7 @@ from ioc_triage.ioc_utils import detect_ioc_type
 from ioc_triage.vt_client import query_ip, query_domain, query_hash, query_url
 from ioc_triage.abuseipdb_client import query_ip_abuse
 from ioc_triage.verdict import score_verdict, score_combined_verdict
+from database.db import init_db, save_ioc_scan
 
 
 def print_report(indicator: str, ioc_type: str, result: dict) -> None:
@@ -71,6 +72,8 @@ def main():
 
     indicator = args.ioc.strip()
 
+    init_db()  # creates tables on first run, no-op if they already exist
+
     if not indicator:
         print("Error: --ioc cannot be empty.")
         sys.exit(1)
@@ -89,21 +92,25 @@ def main():
         abuse_result = query_ip_abuse(indicator)
         combined = score_combined_verdict(vt_result, abuse_result)
         print_report(indicator, ioc_type, combined)
+        save_ioc_scan(indicator, ioc_type, combined["verdict"], combined["reason"])
 
     elif ioc_type == "domain":
         vt_result = query_domain(indicator)
         scored = score_verdict(vt_result)
         print_report(indicator, ioc_type, scored)
+        save_ioc_scan(indicator, ioc_type, scored["verdict"], scored["reason"])
 
     elif ioc_type == "url":
         vt_result = query_url(indicator)
         scored = score_verdict(vt_result)
         print_report(indicator, ioc_type, scored)
+        save_ioc_scan(indicator, ioc_type, scored["verdict"], scored["reason"])
 
     elif ioc_type in ("md5", "sha1", "sha256"):
         vt_result = query_hash(indicator)
         scored = score_verdict(vt_result)
         print_report(indicator, "hash", scored)
+        save_ioc_scan(indicator, "hash", scored["verdict"], scored["reason"])
 
 
 if __name__ == "__main__":

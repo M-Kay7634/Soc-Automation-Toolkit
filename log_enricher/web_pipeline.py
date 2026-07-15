@@ -21,6 +21,7 @@ from log_enricher.web_log_analyzer import (
     classify_severity,
 )
 from log_enricher.enrich import enrich_ip_list, print_enrichment_report
+from database.db import init_db
 
 
 def main():
@@ -29,6 +30,8 @@ def main():
     )
     parser.add_argument("--logfile", required=True, help="Path to the access.log file to analyze")
     args = parser.parse_args()
+
+    init_db()
 
     print(f"Parsing {args.logfile} ...")
     events = parse_log_file(args.logfile)
@@ -52,7 +55,7 @@ def main():
 
     print("=== Enriching Flagged IPs with Threat Intel ===")
     flagged_ips = summary["ip"].tolist()
-    enriched = enrich_ip_list(flagged_ips)
+    enriched = enrich_ip_list(flagged_ips, log_type="web", source_file=args.logfile)
     print_enrichment_report(enriched)
 
 

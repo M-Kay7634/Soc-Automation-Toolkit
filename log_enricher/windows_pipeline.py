@@ -21,6 +21,7 @@ from log_enricher.windows_log_analyzer import (
     find_post_compromise_activity,
 )
 from log_enricher.enrich import enrich_ip_list, print_enrichment_report
+from database.db import init_db
 
 
 def main():
@@ -29,6 +30,8 @@ def main():
     )
     parser.add_argument("--logfile", required=True, help="Path to the exported event CSV")
     args = parser.parse_args()
+
+    init_db()
 
     print(f"Loading {args.logfile} ...")
     df = load_events(args.logfile)
@@ -63,7 +66,7 @@ def main():
         # Only enrich real, public-facing attacker IPs - skip internal ones
         attacker_ips = compromised["SourceIP"].unique().tolist()
         print("=== Enriching Attacker IPs with Threat Intel ===")
-        enriched = enrich_ip_list(attacker_ips)
+        enriched = enrich_ip_list(attacker_ips, log_type="windows", source_file=args.logfile)
         print_enrichment_report(enriched)
 
 
