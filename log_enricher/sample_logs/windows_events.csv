@@ -1,0 +1,16 @@
+EventID,TimeCreated,Account,SourceIP,Workstation,Message
+4624,2026-01-15 09:00:01,manish,10.0.0.15,WKS-01,An account was successfully logged on
+4625,2026-01-15 10:10:01,administrator,192.168.50.10,WKS-99,An account failed to log on
+4625,2026-01-15 10:10:05,administrator,192.168.50.10,WKS-99,An account failed to log on
+4625,2026-01-15 10:10:09,administrator,192.168.50.10,WKS-99,An account failed to log on
+4625,2026-01-15 10:10:13,administrator,192.168.50.10,WKS-99,An account failed to log on
+4625,2026-01-15 10:10:17,administrator,192.168.50.10,WKS-99,An account failed to log on
+4625,2026-01-15 10:10:21,administrator,192.168.50.10,WKS-99,An account failed to log on
+4624,2026-01-15 10:10:25,administrator,192.168.50.10,WKS-99,An account was successfully logged on
+4720,2026-01-15 10:12:00,administrator,192.168.50.10,WKS-99,A user account was created: backdoor_acct
+4732,2026-01-15 10:13:00,administrator,192.168.50.10,WKS-99,A member was added to security-enabled local group: Administrators
+4624,2026-01-15 11:00:00,deploy,10.0.0.20,WKS-02,An account was successfully logged on
+4625,2026-01-15 13:30:00,guest,45.155.205.233,EXTERNAL,An account failed to log on
+4625,2026-01-15 13:30:04,guest,45.155.205.233,EXTERNAL,An account failed to log on
+4625,2026-01-15 13:30:08,root,45.155.205.233,EXTERNAL,An account failed to log on
+4624,2026-01-15 14:00:00,manish,10.0.0.15,WKS-01,An account was successfully logged on
