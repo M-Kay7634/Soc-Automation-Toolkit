@@ -1,0 +1,18 @@
+From: "GitHub" <notifications@github.com>
+To: manish@example.com
+Subject: [soc-automation-toolkit] New star on your repository
+Date: Wed, 15 Jan 2026 14:00:00 +0000
+Authentication-Results: mx.example.com; spf=pass smtp.mailfrom=github.com; dkim=pass header.d=github.com; dmarc=pass (p=REJECT) header.from=github.com
+Received: from mail.github.com (mail.github.com) (140.82.112.22) by mx.example.com
+Message-ID: <real456@github.com>
+
+Hi manish,
+
+Someone starred your repository soc-automation-toolkit.
+
+View it here:
+https://github.com/mmanish7634/soc-automation-toolkit
+
+Thanks for using GitHub!
+
+The GitHub Team
