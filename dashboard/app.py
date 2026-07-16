@@ -40,6 +40,9 @@ from phishing_analyzer.email_parser import parse_eml
 from phishing_analyzer.risk_scorer import score_email
 from database.db import save_phishing_scan
 
+from ml_detection.generate_sample_data import generate_dataset
+from ml_detection.anomaly_detector import engineer_features, detect_anomalies
+
 st.set_page_config(page_title="SOC Automation Toolkit", layout="wide")
 
 init_db()
@@ -75,7 +78,9 @@ col4.metric("📊 Total Scans", malicious_total + suspicious_total + clean_total
 st.divider()
 
 # --- Three tabs, one per module ---
-tab1, tab2, tab3, tab4 = st.tabs(["IOC Triage", "Log Analysis", "Phishing Analyzer", "🔍 Live Scan"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    ["IOC Triage", "Log Analysis", "Phishing Analyzer", "🔍 Live Scan", "🤖 ML Anomaly Detection"]
+)
 
 with tab1:
     st.subheader("Recent IOC Scans")
@@ -215,6 +220,49 @@ with tab4:
                 st.write(f"- {reason}")
 
             os.remove(temp_path)
+
+with tab5:
+    st.subheader("ML-Based Anomaly Detection (Isolation Forest)")
+    st.caption(
+        "Unlike the rule-based detectors (which use a fixed threshold like "
+        "'5+ failed logins = suspicious'), this uses unsupervised machine "
+        "learning to flag IPs whose behavior statistically differs from the "
+        "rest - no threshold required."
+    )
+
+    contamination = st.slider(
+        "Expected anomaly rate (contamination)",
+        min_value=0.05, max_value=0.3, value=0.1, step=0.05,
+        help="Your estimate of what % of traffic is likely anomalous. Higher = more IPs flagged.",
+    )
+
+    if st.button("Run Anomaly Detection on Sample Dataset"):
+        with st.spinner("Generating synthetic login dataset and running Isolation Forest..."):
+            events = generate_dataset()
+            features = engineer_features(events)
+            results = detect_anomalies(features, contamination=contamination)
+
+        st.write(f"Analyzed **{len(features)}** unique IPs.")
+
+        flagged = results[results["is_anomaly"]]
+        if not flagged.empty:
+            st.warning(f"{len(flagged)} IP(s) flagged as anomalous")
+        else:
+            st.success("No anomalies detected")
+
+        st.dataframe(
+            results.style.apply(
+                lambda row: ["background-color: #4a1414" if row["is_anomaly"] else "" for _ in row],
+                axis=1,
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        st.subheader("Attempts vs. Unique Usernames (anomalies stand apart)")
+        chart_df = results[["total_attempts", "unique_usernames", "is_anomaly"]].copy()
+        chart_df["label"] = chart_df["is_anomaly"].map({True: "Anomalous", False: "Normal"})
+        st.scatter_chart(chart_df, x="total_attempts", y="unique_usernames", color="label")
 
 st.divider()
 st.caption("Built by Manish - SOC Automation Toolkit | Data refreshes on page reload")
