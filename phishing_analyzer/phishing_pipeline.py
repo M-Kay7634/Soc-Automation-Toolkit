@@ -21,6 +21,7 @@ from phishing_analyzer.risk_scorer import score_email
 
 from ioc_triage.vt_client import query_domain, query_url
 from database.db import init_db, save_phishing_scan
+from alerting.notifier import send_alert, should_alert
 
 
 def enrich_email_indicators(parsed_email: dict) -> dict:
@@ -105,6 +106,13 @@ def main():
         risk_score=risk_result["risk_score"],
         reasons="; ".join(risk_result["reasons"]),
     )
+
+    if should_alert(risk_result["verdict"]):
+        send_alert(
+            f"Phishing Email Detected: {parsed_email['subject']}",
+            f"From: {parsed_email['from_email']} | Risk Score: {risk_result['risk_score']}/100 | "
+            f"Reasons: {'; '.join(risk_result['reasons'])}",
+        )
 
 
 if __name__ == "__main__":

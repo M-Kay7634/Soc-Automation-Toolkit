@@ -20,6 +20,7 @@ from ioc_triage.vt_client import query_ip, query_domain, query_hash, query_url
 from ioc_triage.abuseipdb_client import query_ip_abuse
 from ioc_triage.verdict import score_verdict, score_combined_verdict
 from database.db import init_db, save_ioc_scan
+from alerting.notifier import send_alert, should_alert
 
 
 def print_report(indicator: str, ioc_type: str, result: dict) -> None:
@@ -93,24 +94,32 @@ def main():
         combined = score_combined_verdict(vt_result, abuse_result)
         print_report(indicator, ioc_type, combined)
         save_ioc_scan(indicator, ioc_type, combined["verdict"], combined["reason"])
+        if should_alert(combined["verdict"]):
+            send_alert(f"Malicious IP Detected: {indicator}", combined["reason"])
 
     elif ioc_type == "domain":
         vt_result = query_domain(indicator)
         scored = score_verdict(vt_result)
         print_report(indicator, ioc_type, scored)
         save_ioc_scan(indicator, ioc_type, scored["verdict"], scored["reason"])
+        if should_alert(scored["verdict"]):
+            send_alert(f"Malicious Domain Detected: {indicator}", scored["reason"])
 
     elif ioc_type == "url":
         vt_result = query_url(indicator)
         scored = score_verdict(vt_result)
         print_report(indicator, ioc_type, scored)
         save_ioc_scan(indicator, ioc_type, scored["verdict"], scored["reason"])
+        if should_alert(scored["verdict"]):
+            send_alert(f"Malicious URL Detected: {indicator}", scored["reason"])
 
     elif ioc_type in ("md5", "sha1", "sha256"):
         vt_result = query_hash(indicator)
         scored = score_verdict(vt_result)
         print_report(indicator, "hash", scored)
         save_ioc_scan(indicator, "hash", scored["verdict"], scored["reason"])
+        if should_alert(scored["verdict"]):
+            send_alert(f"Malicious File Hash Detected: {indicator}", scored["reason"])
 
 
 if __name__ == "__main__":
